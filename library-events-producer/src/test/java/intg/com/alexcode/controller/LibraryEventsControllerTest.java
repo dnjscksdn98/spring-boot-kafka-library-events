@@ -2,7 +2,14 @@ package com.alexcode.controller;
 
 import com.alexcode.domain.Book;
 import com.alexcode.domain.LibraryEvent;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.serialization.LongDeserializer;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -12,8 +19,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.context.TestPropertySource;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -35,7 +48,25 @@ public class LibraryEventsControllerTest {
   @Autowired
   private TestRestTemplate testRestTemplate;
 
+  @Autowired
+  private EmbeddedKafkaBroker embeddedKafkaBroker;
+
+  private Consumer<Long, String> consumer;
+
+  @BeforeEach
+  public void setUp() {
+    Map<String, Object> configs = new HashMap<>(KafkaTestUtils.consumerProps("test-group", "true", embeddedKafkaBroker));
+    consumer = new DefaultKafkaConsumerFactory<>(configs, new LongDeserializer(), new StringDeserializer()).createConsumer();
+    embeddedKafkaBroker.consumeFromAllEmbeddedTopics(consumer);
+  }
+
+  @AfterEach
+  public void tearDown() {
+    consumer.close();
+  }
+
   @Test
+  @Timeout(5)
   public void postLibraryEvent() {
     // given
     Book book = Book.getBuilder()
@@ -58,5 +89,10 @@ public class LibraryEventsControllerTest {
 
     // then
     assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+
+    ConsumerRecord<Long, String> consumerRecord = KafkaTestUtils.getSingleRecord(consumer, "library-events");
+    String expectedValue = "{\"id\":1,\"book\":{\"id\":1,\"name\":\"tester\",\"author\":\"tester\"},\"type\":\"NEW\"}";
+    String actualValue = consumerRecord.value();
+    assertEquals(expectedValue, actualValue);
   }
 }
