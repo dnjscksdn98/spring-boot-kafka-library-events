@@ -24,7 +24,7 @@ public class LibraryEvent {
     return new LibraryEventBuilder();
   }
 
-  private static class LibraryEventBuilder {
+  public static class LibraryEventBuilder {
     private Long id;
     private Book book;
 
