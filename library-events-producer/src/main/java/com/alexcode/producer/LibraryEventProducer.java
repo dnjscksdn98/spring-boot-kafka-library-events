@@ -4,6 +4,7 @@ import com.alexcode.domain.LibraryEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -24,6 +25,8 @@ public class LibraryEventProducer {
 
   @Autowired
   private ObjectMapper objectMapper;
+
+  private final String topic = "library-events";
 
   /**
    * Description:
@@ -72,14 +75,15 @@ public class LibraryEventProducer {
 
   /**
    * Description:
-   *    - Send a message to an explicit topic asynchronously
+   *    - Send a message to an explicit topic asynchronously using ProducerRecord
    *
    */
   public void sendLibraryEventWithTopic(LibraryEvent libraryEvent) throws JsonProcessingException {
     Long key = libraryEvent.getId();
     String value = objectMapper.writeValueAsString(libraryEvent);
 
-    ListenableFuture<SendResult<Long, String>> listenableFuture = kafkaTemplate.send("library-events", key, value);
+    ProducerRecord<Long, String> producerRecord = buildProducerRecord(key, value, topic);
+    ListenableFuture<SendResult<Long, String>> listenableFuture = kafkaTemplate.send(producerRecord);
     listenableFuture.addCallback(new ListenableFutureCallback<SendResult<Long, String>>() {
       @Override
       public void onFailure(Throwable ex) {
@@ -91,6 +95,10 @@ public class LibraryEventProducer {
         handleSuccess(key, value, result);
       }
     });
+  }
+
+  private ProducerRecord<Long, String> buildProducerRecord(Long key, String value, String topic) {
+    return new ProducerRecord<Long, String>(topic, null, key, value, null);
   }
 
   private void handleFailure(Long key, String value, Throwable ex) {

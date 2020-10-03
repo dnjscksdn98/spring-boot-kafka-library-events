@@ -28,8 +28,9 @@ public class LibraryEventsController {
 
     log.info("Before-sendLibraryEvent");
 //    libraryEventProducer.sendLibraryEvent(libraryEvent);
-    SendResult<Long, String> sendResult = libraryEventProducer.sendLibraryEventSynchronous(libraryEvent);
-    log.info("SendResult: {}", sendResult.toString());
+//    SendResult<Long, String> sendResult = libraryEventProducer.sendLibraryEventSynchronous(libraryEvent);
+//    log.info("SendResult: {}", sendResult.toString());
+    libraryEventProducer.sendLibraryEventWithTopic(libraryEvent);
     log.info("After-sendLibraryEvent");
 
     return ResponseEntity.status(HttpStatus.CREATED).body(libraryEvent);
