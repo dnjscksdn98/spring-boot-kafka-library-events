@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -98,7 +101,8 @@ public class LibraryEventProducer {
   }
 
   private ProducerRecord<Long, String> buildProducerRecord(Long key, String value, String topic) {
-    return new ProducerRecord<Long, String>(topic, null, key, value, null);
+    List<Header> recordHeaders = List.of(new RecordHeader("event-source", "scanner".getBytes()));
+    return new ProducerRecord<Long, String>(topic, null, key, value, recordHeaders);
   }
 
   private void handleFailure(Long key, String value, Throwable ex) {
