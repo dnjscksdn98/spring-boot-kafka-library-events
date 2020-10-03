@@ -14,6 +14,12 @@ public class LibraryEvent {
 
   private Book book;
 
+  private LibraryEventType type;
+
+  public void updateLibraryEventType(LibraryEventType type) {
+    this.setType(type);
+  }
+
   public static LibraryEventBuilder getBuilder() {
     return new LibraryEventBuilder();
   }
