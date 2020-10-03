@@ -1,6 +1,7 @@
 package com.alexcode.controller;
 
 import com.alexcode.domain.LibraryEvent;
+import com.alexcode.domain.LibraryEventType;
 import com.alexcode.producer.LibraryEventProducer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class LibraryEventsController {
 //    libraryEventProducer.sendLibraryEvent(libraryEvent);
 //    SendResult<Long, String> sendResult = libraryEventProducer.sendLibraryEventSynchronous(libraryEvent);
 //    log.info("SendResult: {}", sendResult.toString());
+    libraryEvent.updateLibraryEventType(LibraryEventType.NEW);
     libraryEventProducer.sendLibraryEventWithTopic(libraryEvent);
     log.info("After-sendLibraryEvent");
 
