@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 @Getter
 @Setter(value = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -12,6 +15,8 @@ public class LibraryEvent {
 
   private Long id;
 
+  @NotNull
+  @Valid
   private Book book;
 
   private LibraryEventType type;

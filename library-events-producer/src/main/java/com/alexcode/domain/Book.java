@@ -5,15 +5,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 @Getter
 @Setter(value = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Book {
 
+  @NotNull
   private Long id;
 
+  @NotBlank
   private String name;
 
+  @NotBlank
   private String author;
 
   public static BookBuilder getBuilder() {
