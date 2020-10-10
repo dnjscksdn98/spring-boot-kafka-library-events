@@ -77,7 +77,7 @@ public class LibraryEventsControllerTestIT {
             .build();
 
     LibraryEvent libraryEvent = LibraryEvent.getBuilder()
-            .withId(1L)
+            .withId(null)
             .withBook(book)
             .build();
 
@@ -92,8 +92,38 @@ public class LibraryEventsControllerTestIT {
     assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
 
     ConsumerRecord<Long, String> consumerRecord = KafkaTestUtils.getSingleRecord(consumer, "library-events");
-    String expectedValue = "{\"id\":1,\"book\":{\"id\":1,\"name\":\"tester\",\"author\":\"tester\"},\"type\":\"NEW\"}";
+    String expectedValue = "{\"id\":null,\"book\":{\"id\":1,\"name\":\"tester\",\"author\":\"tester\"},\"type\":\"NEW\"}";
     String actualValue = consumerRecord.value();
     assertEquals(expectedValue, actualValue);
   }
+
+  @Test
+	public void putLibraryEvent() {
+		// given
+		Book book = Book.getBuilder()
+						.withId(1L)
+						.withName("tester")
+						.withAuthor("tester")
+						.build();
+
+		LibraryEvent libraryEvent = LibraryEvent.getBuilder()
+						.withId(1L)
+						.withBook(book)
+						.build();
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("content-type", MediaType.APPLICATION_JSON.toString());
+		HttpEntity<LibraryEvent> request = new HttpEntity<>(libraryEvent, headers);
+
+		// when
+		ResponseEntity<LibraryEvent> responseEntity = testRestTemplate.exchange("/v1/library/event", HttpMethod.PUT, request, LibraryEvent.class);
+
+		// then
+		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+
+		ConsumerRecord<Long, String> consumerRecord = KafkaTestUtils.getSingleRecord(consumer, "library-events");
+		String expectedValue = "{\"id\":1,\"book\":{\"id\":1,\"name\":\"tester\",\"author\":\"tester\"},\"type\":\"UPDATE\"}";
+		String actualValue = consumerRecord.value();
+		assertEquals(expectedValue, actualValue);
+	}
 }
