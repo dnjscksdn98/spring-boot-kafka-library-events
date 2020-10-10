@@ -98,6 +98,7 @@ public class LibraryEventsControllerTestIT {
   }
 
   @Test
+	@Timeout(5)
 	public void putLibraryEvent() {
 		// given
 		Book book = Book.getBuilder()
@@ -125,5 +126,31 @@ public class LibraryEventsControllerTestIT {
 		String expectedValue = "{\"id\":1,\"book\":{\"id\":1,\"name\":\"tester\",\"author\":\"tester\"},\"type\":\"UPDATE\"}";
 		String actualValue = consumerRecord.value();
 		assertEquals(expectedValue, actualValue);
+	}
+
+	@Test
+	@Timeout(5)
+	public void putLibraryEvent_4xx() {
+		// given
+		Book book = Book.getBuilder()
+						.withId(1L)
+						.withName("tester")
+						.withAuthor("tester")
+						.build();
+
+		LibraryEvent libraryEvent = LibraryEvent.getBuilder()
+						.withId(null)
+						.withBook(book)
+						.build();
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("content-type", MediaType.APPLICATION_JSON.toString());
+		HttpEntity<LibraryEvent> request = new HttpEntity<>(libraryEvent, headers);
+
+		// when
+		ResponseEntity<String> responseEntity = testRestTemplate.exchange("/v1/library/event", HttpMethod.PUT, request, String.class);
+
+		// then
+		assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
 	}
 }
