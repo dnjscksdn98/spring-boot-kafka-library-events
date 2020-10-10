@@ -41,7 +41,7 @@ public class LibraryEventsController {
     return ResponseEntity.status(HttpStatus.CREATED).body(libraryEvent);
   }
 
-  @PutMapping(path = "/v1/library/event/{}")
+  @PutMapping(path = "/v1/library/event")
   public ResponseEntity<?> putLibraryEvent(@RequestBody @Valid LibraryEvent libraryEvent) throws JsonProcessingException {
   	if (libraryEvent.getId() == null) {
   		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please pass the id");
