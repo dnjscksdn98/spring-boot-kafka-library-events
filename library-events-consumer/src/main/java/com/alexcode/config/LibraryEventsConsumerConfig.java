@@ -19,6 +19,14 @@ public class LibraryEventsConsumerConfig {
 	@Autowired
 	private KafkaProperties properties;
 
+	/**
+	 * Description:
+	 * 		- factory.getContainerProperties().setAckMode(AckMode.MANUAL);
+	 * 	    - sets the option for committing offsets to MANUAL mode
+	 * 	  - factory.setConcurrency(3);
+	 * 	    - configures multiple kafka listeners from the same application itself
+	 *
+	 */
 	@Bean
 	ConcurrentKafkaListenerContainerFactory<?, ?> kafkaListenerContainerFactory(
 					ConcurrentKafkaListenerContainerFactoryConfigurer configurer,
@@ -27,7 +35,8 @@ public class LibraryEventsConsumerConfig {
 		ConcurrentKafkaListenerContainerFactory<Object, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
 		configurer.configure(factory, kafkaConsumerFactory
 						.getIfAvailable(() -> new DefaultKafkaConsumerFactory<>(this.properties.buildConsumerProperties())));
-		factory.getContainerProperties().setAckMode(AckMode.MANUAL);
+//		factory.getContainerProperties().setAckMode(AckMode.MANUAL);
+		factory.setConcurrency(3);
 		return factory;
 	}
 }
