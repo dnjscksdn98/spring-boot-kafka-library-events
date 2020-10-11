@@ -62,3 +62,9 @@ public class LibraryEventsConsumerConfig {
   ...
 }
 ```
+
+### Rebalance
+
+Changing the partition ownership from one consumer to another.
+
+<a><img src="https://i.ibb.co/pfG7DY5/kafka-rebalance.png" alt="kafka-rebalance" border="0"></a>
