@@ -1,4 +1,5 @@
 # spring-boot-kafka-library-events
+[spring for kafka docs](https://docs.spring.io/spring-kafka/docs/2.6.1/reference/html/#reference)  
 Distributed Streaming System using Apache Kafka &amp; Spring Boot
 
 ## Architecture Structure
@@ -6,7 +7,7 @@ Distributed Streaming System using Apache Kafka &amp; Spring Boot
 <a><img src="https://i.ibb.co/0m4pm53/library-event-domain-1.png" alt="library-event-domain-1" border="0"></a>
 
 ## Kafka Producer Configurations
-[docs](https://kafka.apache.org/documentation/#producerconfigs)
+[kafka producer configuration docs](https://kafka.apache.org/documentation/#producerconfigs)
 
 **acks**
 
@@ -26,3 +27,38 @@ Distributed Streaming System using Apache Kafka &amp; Spring Boot
 
 - Integer value represented in milliseconds
 - Default value is 100ms
+
+## Spring Kafka Consumer
+
+**MessageListenerContainer**
+
+- ```KafkaMessageListenerContainer```
+  - Implementation of ```MessageListenerContainer```
+  - Polls the records from the kafka topic
+  - Committing the offsets after the records are processed
+  - Single Threaded
+  
+- ```ConcurrentMessageListenerContainer```
+  - Represents multiple ```KafkaMessageListenerContainer```
+
+**@KafkaListener**
+
+- Uses ```ConcurrentMessageListenerContainer``` behind the scenes
+- This is the easiest way to build Kafka Consumer in Spring
+
+- KafkaListener sample code
+```java
+@KafkaListener(topics = {"${spring.kafka.topic}"})
+public void onMessage(ConsumerRecord<Long, String> consumerRecord) {
+  log.info("OnMessage Record: {}", consumerRecord);
+}
+```
+
+- Configuration sample code
+```java
+@Configuration
+@EnableKafka
+public class LibraryEventsConsumerConfig {
+  ...
+}
+```
