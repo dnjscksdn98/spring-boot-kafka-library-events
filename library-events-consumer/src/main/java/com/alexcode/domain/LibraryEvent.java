@@ -26,7 +26,7 @@ public class LibraryEvent {
   private Long id;
 
 	@ToString.Exclude
-	@OneToOne(fetch = FetchType.LAZY, mappedBy = "libraryEvent", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
+	@OneToOne(fetch = FetchType.LAZY, mappedBy = "libraryEvent", cascade = { CascadeType.ALL })
   private Book book;
 
   @Enumerated(value = EnumType.STRING)
